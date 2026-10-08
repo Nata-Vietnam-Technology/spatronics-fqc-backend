@@ -43,7 +43,7 @@ async def create_inspection(
             sku_code=sku_code,
             station_id=station_id,
             shift_id=shift_id,
-            view_ids_json=view_ids,
+            view_ids_input=view_ids,
             images=uploaded_images,
         )
     except InspectionInputError as error:

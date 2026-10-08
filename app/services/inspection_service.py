@@ -40,6 +40,49 @@ class InspectionInputError(ValueError):
     pass
 
 
+def _parse_view_ids_input(raw_view_ids: str) -> list[str]:
+    """Parse JSON or comma-separated view IDs and reject invalid entries."""
+    try:
+        value = json.loads(raw_view_ids)
+    except json.JSONDecodeError as error:
+        if "," not in raw_view_ids or "[" in raw_view_ids or "]" in raw_view_ids:
+            raise InspectionInputError(
+                "view_ids must be a JSON array of strings"
+            ) from error
+        value = [item.strip() for item in raw_view_ids.split(",")]
+
+    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+        raise InspectionInputError("view_ids must be a JSON array of strings")
+    if any(not item or item != item.strip() for item in value):
+        raise InspectionInputError("view_ids must not contain blank or padded IDs")
+    return value
+
+
+def _to_api_evidence_value(value: EngineEvidenceValue) -> EvidenceValue:
+    """Convert engine-generated-evidence-value to its API schema."""
+    return EvidenceValue(label=value.label, value=value.value, unit=value.unit)
+
+
+def _format_view_label(view_id: str) -> str:
+    """Create a display label from a view ID."""
+    labels = {"top": "Top", "angle-1": "Angle 1", "bottom": "Bottom"}
+    return labels.get(view_id, view_id.replace("-", " ").title())
+
+
+def _side_for_view_id(view_id: str) -> ViewSide:
+    """Return the known physical side for a view, or UNKNOWN."""
+    sides = {"top": ViewSide.FRONT, "bottom": ViewSide.BACK}
+    return sides.get(view_id, ViewSide.UNKNOWN)
+
+
+def _golden_or_uploaded_image_url(view_id: str, uploaded_image_url: str) -> str:
+    """Use the mock golden image for known views and the upload otherwise."""
+    known_views = {"top", "angle-1", "bottom"}
+    if view_id in known_views:
+        return f"/mock/pcb/golden-{view_id}.jpg"
+    return uploaded_image_url
+
+
 class InspectionService:
     def __init__(
         self,
@@ -58,23 +101,25 @@ class InspectionService:
         sku_code: str,
         station_id: str,
         shift_id: str,
-        view_ids_json: str,
+        view_ids_input: str,
         images: list[UploadedImage],
     ) -> Inspection:
-        view_ids = _parse_view_ids(view_ids_json)
-        self._validate_views(view_ids, images)
+        """Validate inputs, call the inspection engine and create inspection."""
+        view_ids = _parse_view_ids_input(view_ids_input)
+        self._validate_view_image_mapping(view_ids, images)
 
         inspection_id = self._repository.allocate_inspection_id()
         views: list[InspectionView] = []
         try:
-            views = self._store_views(inspection_id, view_ids, images)
+            views = self._store_images_as_views(inspection_id, view_ids, images)
             engine_output = self._inspection_engine.inspect(
                 InspectionEngineInput(view_ids=tuple(view_ids))
             )
             points = [
-                self._build_point(engine_point) for engine_point in engine_output.points
+                self._to_inspection_point(engine_point)
+                for engine_point in engine_output.points
             ]
-            inspection = self._build_inspection(
+            inspection = self._assemble_inspection(
                 inspection_id=inspection_id,
                 sku_code=sku_code,
                 station_id=station_id,
@@ -84,12 +129,18 @@ class InspectionService:
             )
             self._repository.save(inspection)
         except Exception:
-            self._delete_stored_images(views)
+            self._delete_images_for_views(views)
             raise
         return inspection
 
+    def get_inspection(self, inspection_id: str) -> Inspection | None:
+        """Retrieve an inspection by ID, or return None when it is missing."""
+        return self._repository.get_by_id(inspection_id)
+
     @staticmethod
-    def _validate_views(view_ids: list[str], images: list[UploadedImage]) -> None:
+    def _validate_view_image_mapping(
+        view_ids: list[str], images: list[UploadedImage]
+    ) -> None:
         if len(view_ids) < 3:
             raise InspectionInputError("At least three views are required")
         if len(view_ids) != len(images):
@@ -97,12 +148,13 @@ class InspectionService:
         if len(set(view_ids)) != len(view_ids):
             raise InspectionInputError("view_ids must be unique")
 
-    def _store_views(
+    def _store_images_as_views(
         self,
         inspection_id: str,
         view_ids: list[str],
         images: list[UploadedImage],
     ) -> list[InspectionView]:
+        """Store each image together with its corresponding inspection view."""
         views: list[InspectionView] = []
         try:
             for view_id, uploaded_image in zip(view_ids, images, strict=True):
@@ -115,23 +167,30 @@ class InspectionService:
                 views.append(
                     InspectionView(
                         id=view_id,
-                        label=_view_label(view_id),
-                        side=_view_side(view_id),
+                        label=_format_view_label(view_id),
+                        side=_side_for_view_id(view_id),
                         current_image_url=stored_image.url,
                         current_image_key=stored_image.key,
-                        golden_image_url=_golden_image_url(view_id, stored_image.url),
+                        golden_image_url=_golden_or_uploaded_image_url(
+                            view_id, stored_image.url
+                        ),
                         width=stored_image.width,
                         height=stored_image.height,
                     )
                 )
         except Exception:
-            self._delete_stored_images(views)
+            self._delete_images_for_views(views)
             raise
         return views
 
-    def _build_point(self, engine_point: EnginePoint) -> InspectionPoint:
+    @staticmethod
+    def _to_inspection_point(engine_point: EnginePoint) -> InspectionPoint:
+        """Convert an engine point and its checks to an inspection point."""
         results = calculate_point_result(check.result for check in engine_point.checks)
-        checks = [self._build_check(check) for check in engine_point.checks]
+        checks = [
+            InspectionService._to_inspection_check(check)
+            for check in engine_point.checks
+        ]
         return InspectionPoint(
             id=engine_point.id,
             target_ref=engine_point.target_ref,
@@ -139,23 +198,31 @@ class InspectionService:
             machine_result=results.machine_result,
             current_result=results.current_result,
             requires_review=engine_point.requires_review,
-            region=self._region_dict(engine_point.region),
+            region=InspectionService._to_inspection_region(engine_point.region),
             checks=checks,
             review=None,
         )
 
     @staticmethod
-    def _build_check(check: EngineCheck) -> InspectionCheck:
+    def _to_inspection_check(check: EngineCheck) -> InspectionCheck:
+        """Convert an engine check and its evidence to API schemas."""
         return InspectionCheck(
             id=check.id,
             group=check.group,
             issue_type=check.issue_type,
             result=check.result,
             evidence=InspectionEvidence(
-                expected=[_evidence_value(value) for value in check.evidence.expected],
-                observed=[_evidence_value(value) for value in check.evidence.observed],
+                expected=[
+                    _to_api_evidence_value(value) for value in check.evidence.expected
+                ],
+                observed=[
+                    _to_api_evidence_value(value) for value in check.evidence.observed
+                ],
                 difference=(
-                    [_evidence_value(value) for value in check.evidence.difference]
+                    [
+                        _to_api_evidence_value(value)
+                        for value in check.evidence.difference
+                    ]
                     if check.evidence.difference is not None
                     else None
                 ),
@@ -163,9 +230,10 @@ class InspectionService:
         )
 
     @staticmethod
-    def _region_dict(
+    def _to_inspection_region(
         region: EngineBoundingBox | EnginePolygon | None,
     ) -> dict[str, Any] | None:
+        """Convert an engine bounding box or polygon to the API region shape."""
         if isinstance(region, EngineBoundingBox):
             return {
                 "kind": "bbox",
@@ -184,7 +252,7 @@ class InspectionService:
         return None
 
     @staticmethod
-    def _build_inspection(
+    def _assemble_inspection(
         *,
         inspection_id: str,
         sku_code: str,
@@ -193,6 +261,7 @@ class InspectionService:
         views: list[InspectionView],
         points: list[InspectionPoint],
     ) -> Inspection:
+        """Assemble the inspection and calculate its results and summary."""
         timestamp = datetime.now(timezone.utc)
         return Inspection(
             id=inspection_id,
@@ -212,51 +281,11 @@ class InspectionService:
             summary=summarize_points(points),
         )
 
-    def get_inspection(self, inspection_id: str) -> Inspection | None:
-        return self._repository.get_by_id(inspection_id)
-
-    def _delete_stored_images(self, views: list[InspectionView]) -> None:
+    def _delete_images_for_views(self, views: list[InspectionView]) -> None:
+        """Delete stored uploads for views after a failed inspection operation."""
         for view in views:
             if view.current_image_key is not None:
                 try:
                     self._image_storage.delete(view.current_image_key)
                 except OSError:
                     continue
-
-
-def _parse_view_ids(view_ids_json: str) -> list[str]:
-    try:
-        value = json.loads(view_ids_json)
-    except json.JSONDecodeError as error:
-        if "," not in view_ids_json or "[" in view_ids_json or "]" in view_ids_json:
-            raise InspectionInputError(
-                "view_ids must be a JSON array of strings"
-            ) from error
-        value = [item.strip() for item in view_ids_json.split(",")]
-
-    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
-        raise InspectionInputError("view_ids must be a JSON array of strings")
-    if any(not item or item != item.strip() for item in value):
-        raise InspectionInputError("view_ids must not contain blank or padded IDs")
-    return value
-
-
-def _evidence_value(value: EngineEvidenceValue) -> EvidenceValue:
-    return EvidenceValue(label=value.label, value=value.value, unit=value.unit)
-
-
-def _view_label(view_id: str) -> str:
-    labels = {"top": "Top", "angle-1": "Angle 1", "bottom": "Bottom"}
-    return labels.get(view_id, view_id.replace("-", " ").title())
-
-
-def _view_side(view_id: str) -> ViewSide:
-    sides = {"top": ViewSide.FRONT, "bottom": ViewSide.BACK}
-    return sides.get(view_id, ViewSide.UNKNOWN)
-
-
-def _golden_image_url(view_id: str, uploaded_image_url: str) -> str:
-    known_views = {"top", "angle-1", "bottom"}
-    if view_id in known_views:
-        return f"/mock/pcb/golden-{view_id}.jpg"
-    return uploaded_image_url
