@@ -1,3 +1,4 @@
+# Implements inspection persistence and queries using SQLAlchemy.
 from datetime import datetime, timezone
 
 from pydantic import TypeAdapter
@@ -31,12 +32,13 @@ from app.schemas.inspection import (
 )
 from app.schemas.review import ReviewRecord
 
-
 REGION_ADAPTER = TypeAdapter(InspectionRegion)
 
 
 class SqlAlchemyInspectionRepository(InspectionRepository):
-    def __init__(self, session_factory: sessionmaker[Session], dialect_name: str) -> None:
+    def __init__(
+        self, session_factory: sessionmaker[Session], dialect_name: str
+    ) -> None:
         self._session_factory = session_factory
         self._dialect_name = dialect_name
 
@@ -54,7 +56,9 @@ class SqlAlchemyInspectionRepository(InspectionRepository):
             if self._dialect_name == "postgresql":
                 next_id = session.scalar(select(INSPECTION_ID_SEQUENCE.next_value()))
             elif self._dialect_name == "sqlite":
-                next_id = session.scalar(select(func.coalesce(func.max(InspectionRow.id), 0) + 1))
+                next_id = session.scalar(
+                    select(func.coalesce(func.max(InspectionRow.id), 0) + 1)
+                )
             else:
                 raise NotImplementedError(
                     f"Inspection ID allocation is unsupported for {self._dialect_name}"
@@ -68,13 +72,15 @@ class SqlAlchemyInspectionRepository(InspectionRepository):
                 .where(InspectionRow.public_id == inspection.id)
                 .options(
                     selectinload(InspectionRow.views),
-                    selectinload(InspectionRow.points)
-                    .selectinload(InspectionPointRow.region),
+                    selectinload(InspectionRow.points).selectinload(
+                        InspectionPointRow.region
+                    ),
                     selectinload(InspectionRow.points)
                     .selectinload(InspectionPointRow.checks)
                     .selectinload(InspectionCheckRow.evidence),
-                    selectinload(InspectionRow.points)
-                    .selectinload(InspectionPointRow.reviews),
+                    selectinload(InspectionRow.points).selectinload(
+                        InspectionPointRow.reviews
+                    ),
                 )
             )
             if row is None:
@@ -107,7 +113,9 @@ class SqlAlchemyInspectionRepository(InspectionRepository):
             ).all()
             return [_to_schema(row) for row in rows]
 
-    def _load_inspection(self, session: Session, inspection_id: str) -> InspectionRow | None:
+    def _load_inspection(
+        self, session: Session, inspection_id: str
+    ) -> InspectionRow | None:
         return session.scalar(
             select(InspectionRow)
             .where(InspectionRow.public_id == inspection_id)
@@ -164,7 +172,9 @@ class SqlAlchemyInspectionRepository(InspectionRepository):
             view_row.position = position
             view_row.label = view.label
             view_row.side = view.side.value
-            view_row.current_image_ref = view.current_image_key or view.current_image_url
+            view_row.current_image_ref = (
+                view.current_image_key or view.current_image_url
+            )
             view_row.golden_image_ref = view.golden_image_url
             view_row.width = view.width
             view_row.height = view.height
@@ -319,7 +329,11 @@ def _summarize(points: list[InspectionPoint]) -> InspectionSummary:
 
 
 def _utc(value: datetime) -> datetime:
-    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+    return (
+        value.replace(tzinfo=timezone.utc)
+        if value.tzinfo is None
+        else value.astimezone(timezone.utc)
+    )
 
 
 def _image_url(image_ref: str) -> str:

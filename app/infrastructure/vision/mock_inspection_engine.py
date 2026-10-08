@@ -1,3 +1,4 @@
+# Provides a mock inspection engine and sample point results for development.
 from app.domain.inspection.enums import (
     InspectionGroup,
     InspectionResult,
@@ -18,7 +19,9 @@ from app.domain.inspection_engine.types import (
 
 
 class MockInspectionEngine(InspectionEngine):
-    def inspect(self, inspection_input: InspectionEngineInput) -> InspectionEngineOutput:
+    def inspect(
+        self, inspection_input: InspectionEngineInput
+    ) -> InspectionEngineOutput:
         view_ids = inspection_input.view_ids
         if len(view_ids) < 3:
             raise ValueError("The mock inspection engine requires at least three views")
@@ -33,10 +36,41 @@ class MockInspectionEngine(InspectionEngine):
                     view_id=view_ids[0], x=0.42, y=0.31, width=0.08, height=0.05
                 ),
                 checks=(
-                    _check("001-PRESENCE", InspectionGroup.PRESENCE, InspectionResult.PASS, "Presence", "Present", "Present"),
-                    _check("001-POSITION", InspectionGroup.POSITION, InspectionResult.REVIEW, "Offset", 0, 1.4, "mm", IssueType.WRONG_POSITION, 1.4),
-                    _check("001-COLOR", InspectionGroup.COLOR, InspectionResult.PASS, "Color", "red", "red"),
-                    _check("001-ORIENTATION", InspectionGroup.ORIENTATION, InspectionResult.PASS, "Orientation", "normal", "normal"),
+                    _check(
+                        "001-PRESENCE",
+                        InspectionGroup.PRESENCE,
+                        InspectionResult.PASS,
+                        "Presence",
+                        "Present",
+                        "Present",
+                    ),
+                    _check(
+                        "001-POSITION",
+                        InspectionGroup.POSITION,
+                        InspectionResult.REVIEW,
+                        "Offset",
+                        0,
+                        1.4,
+                        "mm",
+                        IssueType.WRONG_POSITION,
+                        1.4,
+                    ),
+                    _check(
+                        "001-COLOR",
+                        InspectionGroup.COLOR,
+                        InspectionResult.PASS,
+                        "Color",
+                        "red",
+                        "red",
+                    ),
+                    _check(
+                        "001-ORIENTATION",
+                        InspectionGroup.ORIENTATION,
+                        InspectionResult.PASS,
+                        "Orientation",
+                        "normal",
+                        "normal",
+                    ),
                 ),
             ),
             EnginePoint(
@@ -48,8 +82,23 @@ class MockInspectionEngine(InspectionEngine):
                     view_id=view_ids[1], x=0.65, y=0.18, width=0.06, height=0.07
                 ),
                 checks=(
-                    _check("002-PRESENCE", InspectionGroup.PRESENCE, InspectionResult.PASS, "Presence", "Present", "Present"),
-                    _check("002-POSITION", InspectionGroup.POSITION, InspectionResult.PASS, "Offset", 0, 0.2, "mm"),
+                    _check(
+                        "002-PRESENCE",
+                        InspectionGroup.PRESENCE,
+                        InspectionResult.PASS,
+                        "Presence",
+                        "Present",
+                        "Present",
+                    ),
+                    _check(
+                        "002-POSITION",
+                        InspectionGroup.POSITION,
+                        InspectionResult.PASS,
+                        "Offset",
+                        0,
+                        0.2,
+                        "mm",
+                    ),
                 ),
             ),
             EnginePoint(
@@ -62,8 +111,23 @@ class MockInspectionEngine(InspectionEngine):
                     points=((0.2, 0.2), (0.28, 0.2), (0.28, 0.28), (0.2, 0.28)),
                 ),
                 checks=(
-                    _check("003-PRESENCE", InspectionGroup.PRESENCE, InspectionResult.PASS, "Presence", "Present", "Present"),
-                    _check("003-ORIENTATION", InspectionGroup.ORIENTATION, InspectionResult.FAIL, "Notch", "top-left", "bottom-left", issue_type=IssueType.REVERSED_ORIENTATION),
+                    _check(
+                        "003-PRESENCE",
+                        InspectionGroup.PRESENCE,
+                        InspectionResult.PASS,
+                        "Presence",
+                        "Present",
+                        "Present",
+                    ),
+                    _check(
+                        "003-ORIENTATION",
+                        InspectionGroup.ORIENTATION,
+                        InspectionResult.FAIL,
+                        "Notch",
+                        "top-left",
+                        "bottom-left",
+                        issue_type=IssueType.REVERSED_ORIENTATION,
+                    ),
                 ),
             ),
             EnginePoint(
@@ -75,7 +139,15 @@ class MockInspectionEngine(InspectionEngine):
                     view_id=view_ids[0], x=0.12, y=0.72, width=0.38, height=0.04
                 ),
                 checks=(
-                    _check("004-WIRE", InspectionGroup.WIRE, InspectionResult.REVIEW, "Wire position", "within path", "slight deviation", issue_type=IssueType.WRONG_WIRE_POSITION),
+                    _check(
+                        "004-WIRE",
+                        InspectionGroup.WIRE,
+                        InspectionResult.REVIEW,
+                        "Wire position",
+                        "within path",
+                        "slight deviation",
+                        issue_type=IssueType.WRONG_WIRE_POSITION,
+                    ),
                 ),
             ),
         )

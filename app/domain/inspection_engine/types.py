@@ -1,3 +1,4 @@
+# Defines typed inputs and outputs exchanged with inspection engines.
 from dataclasses import dataclass, field
 from typing import Literal
 

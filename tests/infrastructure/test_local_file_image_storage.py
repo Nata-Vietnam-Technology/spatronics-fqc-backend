@@ -1,3 +1,4 @@
+# Checks that uploaded images are stored locally and return correct metadata.
 from io import BytesIO
 from pathlib import Path
 

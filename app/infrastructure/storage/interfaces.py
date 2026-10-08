@@ -1,3 +1,4 @@
+# Declares the image storage interface and stored image data shape.
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -24,11 +25,8 @@ class ImageStorage(Protocol):
         view_id: str,
         filename: str,
         content: bytes,
-    ) -> StoredImage:
-        ...
+    ) -> StoredImage: ...
 
-    def retrieve(self, key: str) -> RetrievedImage | None:
-        ...
+    def retrieve(self, key: str) -> RetrievedImage | None: ...
 
-    def delete(self, key: str) -> None:
-        ...
+    def delete(self, key: str) -> None: ...

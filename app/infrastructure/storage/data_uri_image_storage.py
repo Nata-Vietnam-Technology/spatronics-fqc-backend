@@ -1,3 +1,4 @@
+# Stores images as data URIs for lightweight application setups.
 import base64
 from io import BytesIO
 
@@ -26,7 +27,9 @@ class DataUriImageStorage:
                 media_type = image.get_format_mimetype()
                 image.verify()
         except (UnidentifiedImageError, OSError, Image.DecompressionBombError) as error:
-            raise InvalidImageError("Uploaded file is not a valid supported image") from error
+            raise InvalidImageError(
+                "Uploaded file is not a valid supported image"
+            ) from error
 
         if media_type is None:
             raise InvalidImageError("Uploaded image format is not supported")

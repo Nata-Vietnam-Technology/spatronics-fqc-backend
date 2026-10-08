@@ -1,3 +1,4 @@
+# Configures Alembic to run migrations against the application database models.
 import os
 from logging.config import fileConfig
 
@@ -6,7 +7,6 @@ from sqlalchemy import engine_from_config, pool
 
 from app.infrastructure.persistence.database import Base
 from app.infrastructure.persistence import models
-
 
 config = context.config
 if config.config_file_name is not None:

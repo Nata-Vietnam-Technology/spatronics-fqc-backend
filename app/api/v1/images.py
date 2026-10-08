@@ -1,3 +1,4 @@
+# Defines API endpoints for retrieving stored inspection images.
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response

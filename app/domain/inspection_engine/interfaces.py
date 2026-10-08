@@ -1,3 +1,4 @@
+# Declares the interface implemented by inspection engines.
 from typing import Protocol
 
 from app.domain.inspection_engine.types import (
@@ -7,5 +8,6 @@ from app.domain.inspection_engine.types import (
 
 
 class InspectionEngine(Protocol):
-    def inspect(self, inspection_input: InspectionEngineInput) -> InspectionEngineOutput:
-        ...
+    def inspect(
+        self, inspection_input: InspectionEngineInput
+    ) -> InspectionEngineOutput: ...

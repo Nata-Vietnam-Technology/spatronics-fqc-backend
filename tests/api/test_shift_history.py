@@ -1,3 +1,4 @@
+# Checks shift history responses, summaries, ordering, and filters.
 import json
 from io import BytesIO
 
@@ -67,7 +68,9 @@ def test_shift_history_scopes_items_and_applies_filters(client: TestClient):
         reviewed["id"],
     }
 
-    reviewed_item = next(item for item in history["items"] if item["id"] == reviewed["id"])
+    reviewed_item = next(
+        item for item in history["items"] if item["id"] == reviewed["id"]
+    )
     assert reviewed_item == {
         "id": reviewed["id"],
         "sku_code": "FQC-DEMO-01",
@@ -79,8 +82,7 @@ def test_shift_history_scopes_items_and_applies_filters(client: TestClient):
     }
 
     filtered = client.get(
-        "/api/v1/shifts/SHIFT-A-2026-10-02/inspections"
-        "?result=REVIEW&reviewed=true"
+        "/api/v1/shifts/SHIFT-A-2026-10-02/inspections" "?result=REVIEW&reviewed=true"
     )
     assert filtered.status_code == 200
     assert [item["id"] for item in filtered.json()["items"]] == [reviewed["id"]]
@@ -96,8 +98,6 @@ def test_shift_history_scopes_items_and_applies_filters(client: TestClient):
 
 
 def test_shift_history_rejects_invalid_result_filter(client: TestClient):
-    response = client.get(
-        "/api/v1/shifts/SHIFT-A-2026-10-02/inspections?result=DEFECT"
-    )
+    response = client.get("/api/v1/shifts/SHIFT-A-2026-10-02/inspections?result=DEFECT")
 
     assert response.status_code == 422

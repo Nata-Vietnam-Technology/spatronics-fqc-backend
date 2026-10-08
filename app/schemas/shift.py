@@ -1,3 +1,4 @@
+# Defines response models for shift history and its inspection summary.
 from datetime import datetime
 
 from pydantic import Field

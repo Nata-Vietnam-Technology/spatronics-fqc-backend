@@ -1,3 +1,4 @@
+# Calculates results for inspection checks, points, and full inspections.
 from collections.abc import Iterable
 from dataclasses import dataclass
 

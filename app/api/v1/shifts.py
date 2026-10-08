@@ -1,3 +1,4 @@
+# Defines API endpoints for retrieving inspection history for a shift.
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request

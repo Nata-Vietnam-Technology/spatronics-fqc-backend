@@ -1,3 +1,4 @@
+# Checks the API workflow for submitting inspection reviews.
 import json
 from io import BytesIO
 
@@ -79,7 +80,9 @@ def test_third_review_required_point_can_be_marked_pass(client: TestClient):
     )
 
     assert response.status_code == 200
-    point = next(point for point in response.json()["points"] if point["id"] == "IP-003")
+    point = next(
+        point for point in response.json()["points"] if point["id"] == "IP-003"
+    )
     assert point["requires_review"] is True
     assert point["machine_result"] == "FAIL"
     assert point["current_result"] == "PASS"
@@ -96,7 +99,9 @@ def test_fail_review_overrides_passed_point_without_changing_machine_result(
     )
 
     assert response.status_code == 200
-    point = next(point for point in response.json()["points"] if point["id"] == "IP-002")
+    point = next(
+        point for point in response.json()["points"] if point["id"] == "IP-002"
+    )
     assert point["machine_result"] == "PASS"
     assert point["current_result"] == "FAIL"
     assert point["review"]["note"] is None

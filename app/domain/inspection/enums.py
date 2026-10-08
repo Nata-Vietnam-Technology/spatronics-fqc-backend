@@ -1,5 +1,5 @@
+# Defines shared inspection result, target, issue, and grouping values.
 from enum import Enum
-
 
 class InspectionResult(str, Enum):
     PASS = "PASS"

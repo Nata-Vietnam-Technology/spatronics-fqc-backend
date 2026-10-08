@@ -1,3 +1,4 @@
+# Checks the rules used to calculate inspection check, point, and overall results.
 import pytest
 
 from app.domain.inspection.enums import InspectionResult, ReviewDecision
@@ -49,15 +50,14 @@ def test_fail_review_resolves_point_to_fail():
 
 
 def test_point_without_review_uses_worst_check_result():
-    results = calculate_point_result(
-        [InspectionResult.PASS, InspectionResult.REVIEW]
-    )
+    results = calculate_point_result([InspectionResult.PASS, InspectionResult.REVIEW])
 
     assert results.current_result is InspectionResult.REVIEW
     assert results.machine_result is InspectionResult.REVIEW
 
 
 def test_inspection_result_uses_worst_point_result():
-    assert calculate_inspection_result(
-        [InspectionResult.PASS, InspectionResult.REVIEW]
-    ) is InspectionResult.REVIEW
+    assert (
+        calculate_inspection_result([InspectionResult.PASS, InspectionResult.REVIEW])
+        is InspectionResult.REVIEW
+    )

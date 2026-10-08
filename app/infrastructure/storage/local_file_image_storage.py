@@ -1,3 +1,4 @@
+# Stores uploaded inspection images as local files and provides their metadata.
 import os
 import mimetypes
 from io import BytesIO
@@ -89,7 +90,9 @@ def _inspect_image(content: bytes) -> tuple[int, int, str, str]:
             media_type = image.get_format_mimetype()
             image.verify()
     except (UnidentifiedImageError, OSError, Image.DecompressionBombError) as error:
-        raise InvalidImageError("Uploaded file is not a valid supported image") from error
+        raise InvalidImageError(
+            "Uploaded file is not a valid supported image"
+        ) from error
 
     if image_format is None or media_type is None:
         raise InvalidImageError("Uploaded image format is not supported")

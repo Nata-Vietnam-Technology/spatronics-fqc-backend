@@ -1,3 +1,4 @@
+# Checks API schema validation and serialization for the inspection data contract.
 import pytest
 from pydantic import ValidationError
 

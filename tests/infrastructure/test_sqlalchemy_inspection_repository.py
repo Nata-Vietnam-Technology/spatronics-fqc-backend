@@ -1,3 +1,4 @@
+# Checks SQLAlchemy inspection persistence, retrieval, and shift filtering.
 from io import BytesIO
 
 from fastapi.testclient import TestClient
@@ -23,7 +24,9 @@ def _png_bytes() -> bytes:
     return buffer.getvalue()
 
 
-def test_database_repository_round_trips_inspections_reviews_and_shift_history(tmp_path):
+def test_database_repository_round_trips_inspections_reviews_and_shift_history(
+    tmp_path,
+):
     engine = create_engine(
         "sqlite+pysqlite://",
         connect_args={"check_same_thread": False},
@@ -74,10 +77,15 @@ def test_database_repository_round_trips_inspections_reviews_and_shift_history(t
     point_id = created["points"][0]["id"]
     review_path = f"/api/v1/inspections/{inspection_id}/points/{point_id}/review"
     first_review = client.put(review_path, json={"decision": "PASS", "note": "checked"})
-    second_review = client.put(review_path, json={"decision": "FAIL", "note": "recheck"})
+    second_review = client.put(
+        review_path, json={"decision": "FAIL", "note": "recheck"}
+    )
     assert first_review.status_code == 200
     assert second_review.status_code == 200
-    assert second_review.json()["points"][0]["machine_result"] == created["points"][0]["machine_result"]
+    assert (
+        second_review.json()["points"][0]["machine_result"]
+        == created["points"][0]["machine_result"]
+    )
     assert second_review.json()["points"][0]["review"]["decision"] == "FAIL"
 
     with sessionmaker(bind=engine)() as session:

@@ -1,3 +1,4 @@
+# Applies review decisions to inspection points and persists the updated inspection.
 from datetime import datetime, timezone
 
 from app.domain.inspection.enums import InspectionResult
@@ -32,7 +33,11 @@ class ReviewService:
             raise InspectionNotFoundError
 
         point_index = next(
-            (index for index, point in enumerate(inspection.points) if point.id == point_id),
+            (
+                index
+                for index, point in enumerate(inspection.points)
+                if point.id == point_id
+            ),
             None,
         )
         if point_index is None:

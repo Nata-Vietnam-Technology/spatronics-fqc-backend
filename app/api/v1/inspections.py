@@ -1,3 +1,5 @@
+# Defines API endpoints for creating and retrieving inspections.
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile

@@ -1,3 +1,4 @@
+# Defines rules for deciding whether inspection checks require review.
 from collections.abc import Iterable
 
 from app.domain.inspection.enums import InspectionResult

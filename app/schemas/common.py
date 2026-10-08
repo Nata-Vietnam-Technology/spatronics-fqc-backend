@@ -1,3 +1,4 @@
+# Defines shared evidence and value models used across API schemas.
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field

@@ -1,3 +1,4 @@
+# Builds shift inspection history, applies filters, and calculates summary counts.
 from app.domain.inspection.enums import InspectionResult
 from app.repositories.inspection_repository import InspectionRepository
 from app.schemas.shift import (
@@ -30,8 +31,12 @@ class ShiftService:
                 sku_code=inspection.sku_code,
                 inspected_at=inspection.completed_at or inspection.started_at,
                 result=inspection.current_result,
-                required_review=any(point.requires_review for point in inspection.points),
-                reviewed_points=sum(point.review is not None for point in inspection.points),
+                required_review=any(
+                    point.requires_review for point in inspection.points
+                ),
+                reviewed_points=sum(
+                    point.review is not None for point in inspection.points
+                ),
                 confirmed_defects=sum(
                     point.current_result is InspectionResult.FAIL
                     for point in inspection.points
@@ -44,9 +49,7 @@ class ShiftService:
         if result is not None:
             items = [item for item in items if item.result is result]
         if reviewed is not None:
-            items = [
-                item for item in items if (item.reviewed_points > 0) is reviewed
-            ]
+            items = [item for item in items if (item.reviewed_points > 0) is reviewed]
 
         summary = ShiftHistorySummary(
             inspected=len(all_items),

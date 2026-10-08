@@ -1,3 +1,4 @@
+# Defines SQLAlchemy tables for inspections, views, points, checks, and reviews.
 from __future__ import annotations
 
 from datetime import datetime
@@ -20,7 +21,6 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.persistence.database import Base
-
 
 INSPECTION_ID_SEQUENCE = Sequence("inspection_public_id_seq")
 JSON_DOCUMENT = JSON().with_variant(JSONB, "postgresql")
@@ -52,7 +52,9 @@ class InspectionRow(Base):
     sku_code: Mapped[str] = mapped_column(String(128), nullable=False)
     station_id: Mapped[str] = mapped_column(String(128), nullable=False)
     shift_id: Mapped[str] = mapped_column(String(128), nullable=False)
-    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     machine_result: Mapped[str] = mapped_column(String(16), nullable=False)
     current_result: Mapped[str] = mapped_column(String(16), nullable=False)
@@ -60,7 +62,10 @@ class InspectionRow(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
     )
 
     views: Mapped[list[InspectionViewRow]] = relationship(
@@ -79,7 +84,9 @@ class InspectionViewRow(Base):
     __tablename__ = "inspection_views"
     __table_args__ = (
         UniqueConstraint("inspection_id", "view_id", name="uq_views_inspection_view"),
-        UniqueConstraint("inspection_id", "position", name="uq_views_inspection_position"),
+        UniqueConstraint(
+            "inspection_id", "position", name="uq_views_inspection_position"
+        ),
         CheckConstraint("position >= 0", name="ck_views_position_nonnegative"),
         CheckConstraint("width >= 0", name="ck_views_width_nonnegative"),
         CheckConstraint("height >= 0", name="ck_views_height_nonnegative"),
@@ -104,7 +111,9 @@ class InspectionViewRow(Base):
 class InspectionPointRow(Base):
     __tablename__ = "inspection_points"
     __table_args__ = (
-        UniqueConstraint("inspection_id", "point_code", name="uq_points_inspection_code"),
+        UniqueConstraint(
+            "inspection_id", "point_code", name="uq_points_inspection_code"
+        ),
         CheckConstraint(
             "machine_result IN ('PASS', 'REVIEW', 'FAIL')",
             name="ck_points_machine_result",
@@ -148,7 +157,9 @@ class InspectionRegionRow(Base):
 
     id: Mapped[int] = mapped_column(INTERNAL_ID, primary_key=True)
     point_id: Mapped[int] = mapped_column(
-        ForeignKey("inspection_points.id", ondelete="CASCADE"), unique=True, nullable=False
+        ForeignKey("inspection_points.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
     )
     shape: Mapped[dict] = mapped_column(JSON_DOCUMENT, nullable=False)
 
@@ -186,7 +197,9 @@ class InspectionEvidenceRow(Base):
 
     id: Mapped[int] = mapped_column(INTERNAL_ID, primary_key=True)
     check_id: Mapped[int] = mapped_column(
-        ForeignKey("inspection_checks.id", ondelete="CASCADE"), unique=True, nullable=False
+        ForeignKey("inspection_checks.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
     )
     payload: Mapped[dict] = mapped_column(JSON_DOCUMENT, nullable=False)
 
@@ -206,6 +219,8 @@ class InspectionReviewRow(Base):
     )
     decision: Mapped[str] = mapped_column(String(16), nullable=False)
     note: Mapped[str | None] = mapped_column(Text)
-    reviewed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    reviewed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
 
     point: Mapped[InspectionPointRow] = relationship(back_populates="reviews")

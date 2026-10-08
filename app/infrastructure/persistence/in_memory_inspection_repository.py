@@ -1,3 +1,4 @@
+# Implements the inspection repository interface with in-memory storage.
 from itertools import count
 
 from app.schemas.inspection import Inspection

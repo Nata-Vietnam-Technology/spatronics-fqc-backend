@@ -1,3 +1,4 @@
+# Checks inspection creation and retrieval through the API.
 from io import BytesIO
 
 import pytest
@@ -25,8 +26,7 @@ def _png_bytes() -> bytes:
 def _files(view_ids: list[str]) -> list[tuple[str, tuple[str, bytes, str]]]:
     content = _png_bytes()
     return [
-        ("images", (f"{view_id}.png", content, "image/png"))
-        for view_id in view_ids
+        ("images", (f"{view_id}.png", content, "image/png")) for view_id in view_ids
     ]
 
 
@@ -56,8 +56,12 @@ def test_create_then_get_returns_full_contract_inspection(client: TestClient):
     inspection = created.json()
     assert inspection["id"].startswith("INS-")
     assert [view["id"] for view in inspection["views"]] == view_ids
-    assert all(view["width"] == 8 and view["height"] == 6 for view in inspection["views"])
-    assert inspection["views"][0]["current_image_url"].startswith("data:image/png;base64,")
+    assert all(
+        view["width"] == 8 and view["height"] == 6 for view in inspection["views"]
+    )
+    assert inspection["views"][0]["current_image_url"].startswith(
+        "data:image/png;base64,"
+    )
     assert inspection["views"][0]["golden_image_url"] == "/mock/pcb/golden-top.jpg"
     assert len(inspection["points"]) == 4
     assert sum(point["requires_review"] for point in inspection["points"]) == 3
@@ -114,7 +118,11 @@ def test_create_accepts_swagger_serialized_view_ids(client: TestClient):
     ("view_ids", "image_ids", "expected_detail"),
     [
         (["top", "bottom"], ["top", "bottom"], "At least three views are required"),
-        (["top", "angle-1", "bottom"], ["top", "bottom"], "Each view_id must have exactly one image"),
+        (
+            ["top", "angle-1", "bottom"],
+            ["top", "bottom"],
+            "Each view_id must have exactly one image",
+        ),
         (["top", "top", "bottom"], ["top", "top", "bottom"], "view_ids must be unique"),
     ],
 )

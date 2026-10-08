@@ -1,3 +1,4 @@
+# Defines the data models for inspections, views, points, checks, and reviews.
 from datetime import datetime
 
 from pydantic import Field

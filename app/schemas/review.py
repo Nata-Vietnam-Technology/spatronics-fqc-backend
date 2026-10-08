@@ -1,3 +1,4 @@
+# Defines request and response models for inspection review decisions.
 from datetime import datetime
 
 from app.domain.inspection.enums import ReviewDecision

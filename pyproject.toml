@@ -1,3 +1,4 @@
+# Defines backend packaging metadata and Python development dependencies.
 [build-system]
 requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"

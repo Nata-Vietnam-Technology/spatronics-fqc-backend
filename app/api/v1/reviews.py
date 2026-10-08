@@ -1,3 +1,4 @@
+# Defines API endpoints for submitting inspection review decisions.
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request

@@ -1,3 +1,4 @@
+# Creates the FastAPI app, wires dependencies, and registers API routes.
 import os
 
 from fastapi import FastAPI

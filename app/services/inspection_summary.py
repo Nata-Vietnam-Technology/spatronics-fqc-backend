@@ -1,3 +1,5 @@
+# Shared by inspection creation and review updates so summary counts stay consistent.
+
 from collections.abc import Sequence
 
 from app.domain.inspection.enums import InspectionResult
