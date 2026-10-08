@@ -21,7 +21,7 @@ from app.infrastructure.persistence.models import (
     InspectionRow,
     InspectionViewRow,
 )
-from app.repositories.inspection_repository import InspectionRepository
+from app.application.ports.inspection_repository import InspectionRepository
 from app.schemas.common import InspectionEvidence, InspectionRegion
 from app.schemas.inspection import (
     Inspection,

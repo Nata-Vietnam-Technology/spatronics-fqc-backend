@@ -3,8 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
-from app.infrastructure.storage.local_file_image_storage import InvalidImageKeyError
-from app.infrastructure.storage.interfaces import ImageStorage
+from app.application.ports.image_storage import ImageStorage, InvalidImageKeyError
 
 router = APIRouter(prefix="/api/v1/images", tags=["images"])
 

@@ -5,8 +5,8 @@ from app.domain.inspection.enums import (
     InspectionTargetType,
     IssueType,
 )
-from app.domain.inspection_engine.interfaces import InspectionEngine
-from app.domain.inspection_engine.types import (
+from app.application.ports.inspection_engine import InspectionEngine
+from app.application.ports.inspection_engine_types import (
     EngineBoundingBox,
     EngineCheck,
     EngineEvidence,

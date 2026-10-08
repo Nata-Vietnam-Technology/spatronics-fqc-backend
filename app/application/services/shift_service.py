@@ -1,6 +1,6 @@
-# Builds shift inspection history, applies filters, and calculates summary counts.
+# Builds shift inspection history and calculates its summary counts.
 from app.domain.inspection.enums import InspectionResult
-from app.repositories.inspection_repository import InspectionRepository
+from app.application.ports.inspection_repository import InspectionRepository
 from app.schemas.shift import (
     ShiftHistoryItem,
     ShiftHistoryResponse,

@@ -7,15 +7,16 @@ from uuid import uuid4
 
 from PIL import Image, UnidentifiedImageError
 
-from app.infrastructure.storage.data_uri_image_storage import InvalidImageError
-from app.infrastructure.storage.interfaces import RetrievedImage, StoredImage
+from app.application.ports.image_storage import (
+    ImageStorage,
+    InvalidImageError,
+    InvalidImageKeyError,
+    RetrievedImage,
+    StoredImage,
+)
 
 
-class InvalidImageKeyError(ValueError):
-    pass
-
-
-class LocalFileImageStorage:
+class LocalFileImageStorage(ImageStorage):
     def __init__(self, root: Path) -> None:
         self._root = root.expanduser().resolve()
         self._root.mkdir(parents=True, exist_ok=True)

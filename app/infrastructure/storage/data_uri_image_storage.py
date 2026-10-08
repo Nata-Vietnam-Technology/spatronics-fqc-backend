@@ -4,11 +4,11 @@ from io import BytesIO
 
 from PIL import Image, UnidentifiedImageError
 
-from app.infrastructure.storage.interfaces import RetrievedImage, StoredImage
-
-
-class InvalidImageError(ValueError):
-    pass
+from app.application.ports.image_storage import (
+    InvalidImageError,
+    RetrievedImage,
+    StoredImage,
+)
 
 
 class DataUriImageStorage:

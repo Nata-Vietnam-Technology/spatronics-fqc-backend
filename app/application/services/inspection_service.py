@@ -9,8 +9,9 @@ from app.domain.inspection.result import (
     calculate_inspection_result,
     calculate_point_result,
 )
-from app.domain.inspection_engine.interfaces import InspectionEngine
-from app.domain.inspection_engine.types import (
+from app.application.ports.image_storage import ImageStorage
+from app.application.ports.inspection_engine import InspectionEngine
+from app.application.ports.inspection_engine_types import (
     EngineBoundingBox,
     EngineCheck,
     EngineEvidenceValue,
@@ -18,8 +19,7 @@ from app.domain.inspection_engine.types import (
     EnginePolygon,
     InspectionEngineInput,
 )
-from app.infrastructure.storage.interfaces import ImageStorage
-from app.repositories.inspection_repository import InspectionRepository
+from app.application.ports.inspection_repository import InspectionRepository
 from app.schemas.common import EvidenceValue, InspectionEvidence
 from app.schemas.inspection import (
     Inspection,
@@ -27,7 +27,7 @@ from app.schemas.inspection import (
     InspectionPoint,
     InspectionView,
 )
-from app.services.inspection_summary import summarize_points
+from app.application.services.inspection_summary import summarize_points
 
 
 @dataclass(frozen=True, slots=True)

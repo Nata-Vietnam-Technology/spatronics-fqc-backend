@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Request
 
 from app.domain.inspection.enums import InspectionResult
 from app.schemas.shift import ShiftHistoryResponse
-from app.services.shift_service import ShiftService
+from app.application.services.shift_service import ShiftService
 
 router = APIRouter(prefix="/api/v1/shifts", tags=["shifts"])
 

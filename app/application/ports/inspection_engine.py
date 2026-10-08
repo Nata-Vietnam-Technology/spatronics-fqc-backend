@@ -1,7 +1,7 @@
 # Declares the interface implemented by inspection engines.
 from typing import Protocol
 
-from app.domain.inspection_engine.types import (
+from app.application.ports.inspection_engine_types import (
     InspectionEngineInput,
     InspectionEngineOutput,
 )

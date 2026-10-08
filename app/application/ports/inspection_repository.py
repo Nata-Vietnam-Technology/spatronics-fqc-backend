@@ -1,4 +1,4 @@
-# Declares the inspection repository interface used by application services.
+# Defines the inspection repository port used by application services.
 from typing import Protocol
 
 from app.schemas.inspection import Inspection

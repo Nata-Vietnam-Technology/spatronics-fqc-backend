@@ -1,4 +1,4 @@
-# Defines typed inputs and outputs exchanged with inspection engines.
+# Defines the typed contract exchanged with inspection-engine adapters.
 from dataclasses import dataclass, field
 from typing import Literal
 

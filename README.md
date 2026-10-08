@@ -36,15 +36,15 @@ Not implemented or not production-ready:
 ```text
 app/
   api/v1/                         HTTP routes for inspections, reviews, shifts, and images
+  application/
+    ports/                        Interfaces and contracts required by application workflows
+    services/                     Inspection, review, and shift use-case orchestration
   domain/                         Inspection enums and result calculation rules
-  domain/inspection_engine/       Engine input/output types and engine protocol
   infrastructure/
     persistence/                  SQLAlchemy/PostgreSQL and in-memory repositories
     storage/                      Local-file and data-URI image adapters
     vision/                        Deterministic mock inspection engine
-  repositories/                   Repository interface used by application services
   schemas/                         Pydantic API request and response models
-  services/                        Inspection, review, and shift workflow orchestration
 migrations/                        Alembic environment and versioned schema migrations
 tests/
   api/                             Inspection, review, and shift endpoint tests

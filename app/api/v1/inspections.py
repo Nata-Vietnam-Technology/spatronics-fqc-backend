@@ -4,9 +4,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 
-from app.infrastructure.storage.data_uri_image_storage import InvalidImageError
+from app.application.ports.image_storage import InvalidImageError
 from app.schemas.inspection import Inspection
-from app.services.inspection_service import (
+from app.application.services.inspection_service import (
     InspectionInputError,
     InspectionService,
     UploadedImage,

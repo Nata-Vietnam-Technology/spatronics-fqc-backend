@@ -8,17 +8,17 @@ from app.api.v1.images import router as images_router
 from app.api.v1.inspections import router as inspections_router
 from app.api.v1.reviews import router as reviews_router
 from app.api.v1.shifts import router as shifts_router
+from app.application.ports.image_storage import ImageStorage
+from app.application.ports.inspection_repository import InspectionRepository
+from app.application.services.inspection_service import InspectionService
+from app.application.services.review_service import ReviewService
+from app.application.services.shift_service import ShiftService
 from app.infrastructure.persistence.sqlalchemy_inspection_repository import (
     SqlAlchemyInspectionRepository,
 )
 from app.infrastructure.storage.data_uri_image_storage import DataUriImageStorage
-from app.infrastructure.storage.interfaces import ImageStorage
 from app.infrastructure.storage.local_file_image_storage import LocalFileImageStorage
 from app.infrastructure.vision.mock_inspection_engine import MockInspectionEngine
-from app.repositories.inspection_repository import InspectionRepository
-from app.services.inspection_service import InspectionService
-from app.services.review_service import ReviewService
-from app.services.shift_service import ShiftService
 
 DEFAULT_DATABASE_URL = "postgresql+psycopg://fqc:fqc_dev_only@localhost:5433/fqc"
 

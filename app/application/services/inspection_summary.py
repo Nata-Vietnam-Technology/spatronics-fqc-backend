@@ -1,4 +1,4 @@
-# Shared by inspection creation and review updates so summary counts stay consistent.
+# Shared summary calculations for inspection creation and review updates.
 
 from collections.abc import Sequence
 

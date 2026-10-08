@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 
 from app.domain.inspection.enums import InspectionResult
 from app.domain.inspection.result import calculate_inspection_result
-from app.repositories.inspection_repository import InspectionRepository
+from app.application.ports.inspection_repository import InspectionRepository
 from app.schemas.inspection import Inspection
 from app.schemas.review import ReviewRecord, ReviewRequest
-from app.services.inspection_summary import summarize_points
+from app.application.services.inspection_summary import summarize_points
 
 
 class InspectionNotFoundError(LookupError):

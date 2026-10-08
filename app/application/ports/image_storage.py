@@ -1,4 +1,4 @@
-# Declares the image storage interface and stored image data shape.
+# Defines the image storage port, data shapes, and shared storage errors.
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -15,6 +15,14 @@ class StoredImage:
 class RetrievedImage:
     content: bytes
     media_type: str
+
+
+class InvalidImageError(ValueError):
+    """Raised when uploaded image content is invalid or unsupported."""
+
+
+class InvalidImageKeyError(ValueError):
+    """Raised when an image storage key is invalid."""
 
 
 class ImageStorage(Protocol):

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.schemas.inspection import Inspection
 from app.schemas.review import ReviewRequest
-from app.services.review_service import (
+from app.application.services.review_service import (
     InspectionNotFoundError,
     InspectionPointNotFoundError,
     ReviewService,
