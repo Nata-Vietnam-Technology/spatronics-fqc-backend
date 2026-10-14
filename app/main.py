@@ -18,7 +18,7 @@ from app.infrastructure.persistence.sqlalchemy_inspection_repository import (
 )
 from app.infrastructure.storage.data_uri_image_storage import DataUriImageStorage
 from app.infrastructure.storage.local_file_image_storage import LocalFileImageStorage
-from app.infrastructure.vision.mock_inspection_engine import MockInspectionEngine
+from app.infrastructure.cvision.mock_inspection_engine import MockInspectionEngine
 
 DEFAULT_DATABASE_URL = "postgresql+psycopg://fqc:fqc_dev_only@localhost:5433/fqc"
 

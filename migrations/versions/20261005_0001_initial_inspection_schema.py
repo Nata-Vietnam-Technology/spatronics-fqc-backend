@@ -1,4 +1,3 @@
-# Creates the initial database tables and indexes for inspections.
 """Create the initial inspection persistence schema."""
 
 from alembic import op
